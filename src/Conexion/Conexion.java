@@ -1,28 +1,44 @@
-package Conexion;
+package conexion;
 
 import java.net.*;
+
+import controlador.Controlador;
+
 import java.io.*;
 
 public class Conexion {
  
 	private ServerSocket server;
-	private Socket  socket;
+	private Socket  socketCliente;
 	private final int PUERTO = 6958;//puerto que vamos a usar en la maquina para ejecutar
 	private DataOutputStream salida;
-	private BufferedReader entrada;
+	private DataInputStream entrada;
+	private boolean conectado;
+	private Controlador controlador;
+	
+	
+	public Conexion() {
+		conectado = true;
+		controlador = new Controlador();
+	}
 	
 	public void iniciar() {
 		try {
-				server = new ServerSocket(PUERTO);
-				socket = new Socket();
-				socket = server.accept();//esperar a que manden peticion proveniente de un programa externo
+				server = new ServerSocket(PUERTO);				
 				
-				entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				String mensaje =entrada.readLine();//recibe la informacion que mandan desde el cliente
-				System.out.println(mensaje);
-				salida = new DataOutputStream(socket.getOutputStream());
-				salida.writeUTF("Conectado al servidor");
-				socket.close();
+				while(conectado) {
+					socketCliente = server.accept();//esperar a que manden peticion proveniente de un programa externo
+					System.out.println("Se ha conectado un cliente");
+					entrada = new DataInputStream(socketCliente.getInputStream()); //entrada de datos del cliente
+					salida = new DataOutputStream(socketCliente.getOutputStream());
+					String mensajeRecibido  = entrada.readUTF();
+					controlador.opciones(Integer.parseInt(mensajeRecibido), salida);
+					conectado = false;
+					socketCliente.close();
+					}
+				System.out.println("cliente desconectado");
+				
+				
 		}catch (Exception e) {
 			System.out.println(e);
 		}

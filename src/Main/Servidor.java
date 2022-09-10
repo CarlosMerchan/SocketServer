@@ -1,6 +1,6 @@
-package Main;
+package main;
 
-import Conexion.Conexion;
+import conexion.Conexion;
 
 public class Servidor {
 
