@@ -1,4 +1,4 @@
-package conexion;
+package Conexion;
 
 import java.net.*;
 
@@ -10,7 +10,7 @@ public class Conexion {
  
 	private ServerSocket server;
 	private Socket  socketCliente;
-	private final int PUERTO = 6958;//puerto que vamos a usar en la maquina para ejecutar
+	private final int PUERTO = 5000;//puerto que vamos a usar en la maquina para ejecutar
 	private DataOutputStream salida;
 	private DataInputStream entrada;
 	private boolean conectado;
@@ -24,17 +24,16 @@ public class Conexion {
 	
 	public void iniciar() {
 		try {
+			
 				server = new ServerSocket(PUERTO);				
-				
-				while(conectado) {
-					socketCliente = server.accept();//esperar a que manden peticion proveniente de un programa externo
-					System.out.println("Se ha conectado un cliente");
-					entrada = new DataInputStream(socketCliente.getInputStream()); //entrada de datos del cliente
-					salida = new DataOutputStream(socketCliente.getOutputStream());
-					String mensajeRecibido  = entrada.readUTF();
-					controlador.opciones(Integer.parseInt(mensajeRecibido), salida);
-					conectado = false;
-					socketCliente.close();
+				socketCliente = server.accept();//esperar a que manden peticion proveniente de un programa externo
+				entrada = new DataInputStream(socketCliente.getInputStream()); //entrada de datos del cliente
+				salida = new DataOutputStream(socketCliente.getOutputStream());
+				System.out.println("Se ha conectado un cliente");
+				String opcEntrada;
+				while(conectado) {					
+					opcEntrada  = entrada.readUTF();										
+					controlador.opciones(opcEntrada, salida);					
 					}
 				System.out.println("cliente desconectado");
 				

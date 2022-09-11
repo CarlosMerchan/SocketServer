@@ -10,9 +10,10 @@ import entidad.Cliente;
 
 public class ClienteDao {
 	private static final String SQL_SELECT = "SELECT * FROM  clientes.cliente";
-    private static final String SQL_INSERT = "INSERT INTO clientes.cliente(nombres,apellidos,saldo,) VALUES(?,?,?)";
+    private static final String SQL_INSERT = "INSERT INTO clientes.cliente (nombres, apellidos, saldo) VALUES (?,?,?);";
     private static final String SQL_UPDATE = "UPDATE clientes.cliente SET nombres = ?,apellidos = ?, saldo= ? WHERE id_cedula= ?";
     private static final String SQL_DELETE = "DELETE FROM clientes.cliente WHERE id_cedula = ?";
+    private static final String SQL_FOUND ="SELECT * FROM clientes.cliente where id_cedula = ?";
     private ConexionMysql conMysl = new ConexionMysql();
     
     public List<Cliente> seleccionar() {
@@ -106,6 +107,35 @@ public class ClienteDao {
             ex.printStackTrace(System.out);
         }
         return registro;
+    }
+    
+    public Cliente getCliente(int cedula) {
+    	Cliente cliente = null;
+    	Connection conexion = null;    	
+        PreparedStatement stt = null;
+        ResultSet rs = null;
+        
+        try {
+            conexion = conMysl.getConexion();
+            stt = conexion.prepareStatement(SQL_FOUND);
+            stt.setInt(1, cedula);
+            rs = stt.executeQuery();
+            while (rs.next()) {                
+                cliente = new Cliente(rs.getInt("id_cedula"),rs.getString("nombres"),rs.getString("apellidos"),rs.getDouble("saldo"));
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+        } finally {
+            try {
+               conMysl.close(rs);
+               conMysl.close(stt);
+               conMysl.close(conexion);
+            } catch (SQLException ex) {
+            	ex.printStackTrace(System.out);
+            }
+        }
+    	
+    	return cliente;
     }
 
 }
